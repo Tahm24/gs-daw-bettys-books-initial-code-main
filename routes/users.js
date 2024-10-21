@@ -3,6 +3,8 @@ const express = require("express")
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const saltrounds = 10;
+const { check, validationResult } = require('express-validator');
+
 
 
 const redirectLogin = (req, res, next) => {
@@ -13,66 +15,68 @@ const redirectLogin = (req, res, next) => {
     } 
 }
 
-
-
-
-
 //register page
-// router.get('/register', function (req, res, next) {
-//     res.render('register.ejs')                                                               
-// })    
+router.get('/register', function (req, res, next) {
+    res.render('register.ejs')                                                               
+})    
 
 
-//registers route
-router.post('/registered', function (req, res, next) {
-    
-    const plainPassword = req.body.password;
-    
-    bcrypt.hash(plainPassword, saltrounds, (err, hashedPassword) => {
-        if (err) {
-            console.error("Error hashing the password:", err);
-            return next(err);
+router.post('/registered', 
+    [
+        check('email').isEmail(), 
+        check('username').isLength({ max: 30 }), 
+        check('password').isLength({ min: 5 }) 
+    ], 
+    function (req, res, next) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            console.log("Invalid Input");
+            return res.redirect('./register');
         }
 
-        let newrecord = [
-            req.body.firstname,
-            req.body.lastname,
-            req.body.email,
-            hashedPassword 
-        ];
+        const plainPassword = req.sanitize(req.body.password);
 
         
-        let sqlquery = "INSERT INTO passwords1 (firstname, lastname, email, hashedpassword) VALUES (?,?,?,?)";
-
-
-       
-        db.query(sqlquery, newrecord, (err, result) => {
+        bcrypt.hash(plainPassword, saltrounds, (err, hashedPassword) => {
             if (err) {
-                console.log("Error inserting into database:", err);
+                console.error("Error hashing the password:", err);
                 return next(err);
             }
+            
+            let newrecord = [
+                req.sanitize(req.body.firstname),
+                req.sanitize(req.body.lastname),
+                req.sanitize(req.body.email),
+                req.sanitize(req.body.username),
+                hashedPassword
+            ];
 
-            
-            
-            
-            
-    res.send(`Hello ${req.body.firstname} ${req.body.lastname}, you are now registered! We will send an email to you at ${req.body.email}. 
-            Your plain password is: ${plainPassword}, and your hashed password is: ${hashedPassword}`);
+            let sqlquery = "INSERT INTO passwords1 (firstname, lastname, email, username, hashedpassword) VALUES (?,?,?,?,?)";
+
+            // Insert the new record into the database
+            db.query(sqlquery, newrecord, (err, result) => {
+                if (err) {
+                    console.log("Error inserting into database:", err);
+                    return next(err);
+                }
+
+                res.send(`Hello ${req.sanitize(req.body.firstname)}, you are now registered! We will send an email to you at ${req.sanitize(req.body.email)}. 
+                          Your plain password is: ${plainPassword}, and your hashed password is: ${hashedPassword}`);
+            });
         });
-    });
 });
 
 router.get('/login', (req, res, next) => {
-    res.render('login.ejs')                                                               
+    res.render('login.ejs');                                                             
 })
 
 //logged / matched passwords
 router.post('/logged', (req, res) => {
 
     const password = req.body.password
-    const sqlquery = "SELECT * FROM passwords1 WHERE email = ?";
+    const sqlquery = "SELECT * FROM passwords1 WHERE username = ?";
     
-    db.query(sqlquery, [req.body.email], (err, result) => {
+    db.query(sqlquery, [req.body.username], (err, result) => {
         if (err) {
             console.error("Error inserting into database:", err);
             return next(err);
@@ -80,7 +84,7 @@ router.post('/logged', (req, res) => {
         
         if(result.length == 0)
             {
-                res.send("no email found, you can browse the web normally though")
+                res.send("no username found, you can browse the web normally though")
             }
             else
             {
@@ -91,7 +95,7 @@ router.post('/logged', (req, res) => {
                     return res.send("An error has occurred: " + err);
                 }
                 if (matching) {
-                req.session.userId = req.body.email;
+                req.session.userId = req.sanitize(req.body.username);
                   res.send("password correct")
                   console.log("db comparison working")
                 }
@@ -106,38 +110,9 @@ router.post('/logged', (req, res) => {
         
     });
 
-
-
-    router.get("/testing1", redirectLogin, (req, res) => {
-        res.send("Testing session 1, you are authenticated!");
-    });
-    
-    router.get("/testing2", redirectLogin, (req, res) => {
-        res.send("Testing session 2, you are authenticated!");
-    });
-    
-    router.get("/testing3", redirectLogin, (req, res) => {
-        res.send("Testing session 3, you are authenticated!");
-    });
-
-    router.get("/testing4", (req, res) => {
-        res.send("Testing session 4")
-    });
-
-    router.get("/testing5", (req, res) => {
-        res.send("Testing session 5")
-    });
-
-
-
-
-
-
-
-
 // Export the router object so index.js can access it
 module.exports = router;
 
 
 
-//hello world change again 2
+
