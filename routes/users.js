@@ -11,7 +11,7 @@ const redirectLogin = (req, res, next) => {
     if (!req.session.userId ) {
       res.redirect('./login') // redirect to the login page
     } else { 
-        next (); // move to the next middleware function
+        next(); // move to the next middleware function
     } 
 }
 
@@ -23,6 +23,8 @@ router.get('/register', function (req, res, next) {
 
 router.post('/registered', 
     [
+        check('firstname').isLength({ max: 50 }),
+        check('lastname').isLength({ max: 50 }),
         check('email').isEmail(), 
         check('username').isLength({ max: 30 }), 
         check('password').isLength({ min: 5 }) 
@@ -60,8 +62,7 @@ router.post('/registered',
                     return next(err);
                 }
 
-                res.send(`Hello ${req.sanitize(req.body.firstname)}, you are now registered! We will send an email to you at ${req.sanitize(req.body.email)}. 
-                          Your plain password is: ${plainPassword}, and your hashed password is: ${hashedPassword}`);
+           
             });
         });
 });
@@ -95,8 +96,7 @@ router.post('/logged', (req, res) => {
                     return res.send("An error has occurred: " + err);
                 }
                 if (matching) {
-                req.session.userId = req.sanitize(req.body.username);
-                  res.send("password correct")
+                  req.session.userId = req.sanitize(req.body.username);
                   console.log("db comparison working")
                 }
                 else {
@@ -112,7 +112,3 @@ router.post('/logged', (req, res) => {
 
 // Export the router object so index.js can access it
 module.exports = router;
-
-
-
-

@@ -13,11 +13,11 @@ const redirectLogin = (req, res, next) => {
 }
 
 // Handle our routes
-router.get('/',function(req, res, next){
+router.get('/',redirectLogin, function(req, res, next){
     res.render('index.ejs')
 })
 
-router.get('/about',function(req, res, next){
+router.get('/about',redirectLogin, function(req, res, next){
     res.render('about.ejs')
 })
 

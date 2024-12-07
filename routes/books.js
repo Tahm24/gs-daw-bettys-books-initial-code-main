@@ -1,5 +1,6 @@
 const express = require("express")
 const router = express.Router();
+const { check, validationResult } = require('express-validator');
 
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId ) {
@@ -10,11 +11,17 @@ const redirectLogin = (req, res, next) => {
 }
 
 
-router.get('/search', redirectLogin, function(req, res, next){
+router.get('/search', [check('search_text').isLength({ max: 10 })], redirectLogin, function(req, res, next){
+    const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            console.log("Invalid Input");
+            return res.redirect('/search');
+        }
+
     res.render("search.ejs")
 })
 
-router.get('/search_result', function (req, res, next) {
+router.get('/search_result', redirectLogin, function (req, res, next) {
     // Search the database
     let sqlquery = "SELECT * FROM books WHERE name LIKE '%" + req.query.search_text + "%'" // query database to get all the books
     // execute sql query
@@ -27,7 +34,7 @@ router.get('/search_result', function (req, res, next) {
 })
 
 
-router.get('/list', function(req, res, next) {
+router.get('/list', redirectLogin, function(req, res, next) {
     let sqlquery = "SELECT * FROM books" // query database to get all the books
     // execute sql query
     db.query(sqlquery, (err, result) => {
@@ -38,7 +45,7 @@ router.get('/list', function(req, res, next) {
      })
 })
 
-router.get('/addbook', function (req, res, next) {
+router.get('/addbook', redirectLogin, function (req, res, next) {
     res.render('addbook.ejs')
 })
 
@@ -63,7 +70,7 @@ router.post('/bookadded', function (req, res, next) {
     })
 }) 
 
-router.get('/bargainbooks', function(req, res, next) {
+router.get('/bargainbooks', redirectLogin, function(req, res, next) {
     let sqlquery = "SELECT * FROM books WHERE price < 20"
     db.query(sqlquery, (err, result) => {
         if (err) {

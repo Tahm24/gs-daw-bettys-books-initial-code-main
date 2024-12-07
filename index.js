@@ -10,7 +10,7 @@ var mysql = require('mysql2')
 
 // Create the express application object
 const app = express()
-const port = 8000;
+const port = 2000;
 
 // Tell Express that we want to use EJS as the templating engine
 app.set('view engine', 'ejs')
@@ -64,6 +64,11 @@ app.use('/users', usersRoutes)
 // Load the route handlers for /books
 const booksRoutes = require('./routes/books')
 app.use('/books', booksRoutes)
+
+// Load the route handlers for /London
+// const weatherRoutes = require('./routes/weather')
+// app.use('/londonnow', weatherRoutes)
+
 
 // Start the web app listening
 app.listen(port, 
