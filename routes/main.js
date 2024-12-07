@@ -6,7 +6,7 @@ const router = express.Router()
 //red
 const redirectLogin = (req, res, next) => {
     if (!req.session.userId ) {
-      res.redirect('../users/login') // redirect to the login page
+      res.redirect('/users/login') // redirect to the login page
     } else { 
         next (); // move to the next middleware function
     } 
@@ -20,6 +20,8 @@ router.get('/',redirectLogin, function(req, res, next){
 router.get('/about',redirectLogin, function(req, res, next){
     res.render('about.ejs')
 })
+
+//Hello
 
 router.get('/logout', redirectLogin, (req,res) => {
     req.session.destroy(err => {
