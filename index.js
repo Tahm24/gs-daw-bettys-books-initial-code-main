@@ -65,6 +65,11 @@ app.use('/users', usersRoutes)
 const booksRoutes = require('./routes/books')
 app.use('/books', booksRoutes)
 
+app.get('/testing123', (req, res) =>
+{
+    res.render('test123');
+})
+
 // Load the route handlers for /London
 // const weatherRoutes = require('./routes/weather')
 // app.use('/londonnow', weatherRoutes)
