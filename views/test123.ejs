@@ -1,67 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Movies</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 20px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-    </style>
+  <title>API Test</title>
 </head>
 <body>
-    <h1>Fetch Saved Movies</h1>
-    <button id="fetchMovies">Fetch Movies</button>
-    <h2>Response:</h2>
-    <pre id="output">Click the button to fetch movies...</pre>
+  <button id="fetchData">Fetch Data</button>
+  <pre id="response"></pre>
 
-    <script>
-        document.getElementById('fetchMovies').addEventListener('click', () => {
-            fetch('http://localhost:8000/movies', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include', // Ensures cookies/session are sent with the request
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch movies');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Fetched Movies:', data);
-                    document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('output').textContent = 'Error fetching movies';
-                });
-        });
-    </script>
+  <script>
+    document.getElementById('fetchData').addEventListener('click', async () => {
+      const url = 'https://www.doc.gold.ac.uk/usr/306/movies/mdt24';
+      const responseDiv = document.getElementById('response');
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        responseDiv.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        responseDiv.textContent = `Error: ${error.message}`;
+      }
+    });
+  </script>
 </body>
 </html>

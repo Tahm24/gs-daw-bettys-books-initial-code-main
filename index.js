@@ -3,6 +3,7 @@ var express = require('express');
 var ejs = require('ejs');
 var session = require('express-session');
 const expressSanitizer = require('express-sanitizer');
+const axios = require('axios'); // For Node.js
 
 //Import mysql module
 var mysql = require('mysql2')
@@ -69,6 +70,11 @@ app.get('/testing123', (req, res) =>
 {
     res.render('test123');
 })
+
+
+
+
+
 
 // Load the route handlers for /London
 // const weatherRoutes = require('./routes/weather')
